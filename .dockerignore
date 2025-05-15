@@ -1,0 +1,4 @@
+.git
+.gitignore
+*.o
+embedded_app 

@@ -1,0 +1,34 @@
+services:
+  embedded-app:
+    build: .
+    depends_on:
+      emqx:
+        condition: service_healthy
+    environment:
+      - MQTT_HOST=emqx
+      - MQTT_PORT=1883
+      - MQTT_USERNAME=admin
+      - MQTT_PASSWORD=public
+    networks:
+      - embedded-network
+
+  emqx:
+    image: emqx/emqx:5.3.0
+    ports:
+      - "1883:1883"
+      - "18083:18083"
+    environment:
+      - EMQX_DASHBOARD__DEFAULT_USERNAME=admin
+      - EMQX_DASHBOARD__DEFAULT_PASSWORD=public
+      - EMQX_LOG__CONSOLE_HANDLER__LEVEL=debug
+    healthcheck:
+      test: ["CMD", "/opt/emqx/bin/emqx_ctl", "status"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+    networks:
+      - embedded-network
+
+networks:
+  embedded-network:
+    driver: bridge
